@@ -1,0 +1,23 @@
+schema-version: v3
+kind: action
+metadata:
+  name: runtime-manager-action
+  display-name: runtime-manager-action
+  description: runtime-manager-action
+  version: 0.0.1
+spec:
+  type: python
+  docs:
+    pt-br: docs/pt-br/docs.md
+    en-us: docs/en-us/docs.md
+  repository: https://github.com/stack-spot/workflow-stackspot-actions-runtime-selfhosted.git
+  inputs:
+    - label: What is your name?
+      name: user_name
+      type: text
+      required: false
+      pattern: '^[A-Za-z]+(?:\s[A-Za-z]+)*$'
+      help: 'Inform your name'
+  python:
+    workdir: .
+    script: script.py
