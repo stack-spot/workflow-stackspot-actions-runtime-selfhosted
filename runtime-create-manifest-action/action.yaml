@@ -1,0 +1,38 @@
+schema-version: v3
+kind: action
+metadata:
+  name: runtime-create-manifest-action
+  display-name: runtime-create-manifest-action
+  description: runtime-create-manifest-action
+  version: 0.0.1
+spec:
+  type: shell
+  docs:
+    pt-br: docs/pt-br/docs.md
+    en-us: docs/en-us/docs.md
+  repository: https://github.com/stack-spot/workflow-stackspot-actions-runtime-selfhosted.git
+  inputs:
+    - label: What is your name?
+      name: user_name
+      type: text
+      required: false
+      pattern: '^[A-Za-z]+(?:\s[A-Za-z]+)*$'
+      help: 'Inform your name'
+  shell:
+    workdir: .
+    requirements-check:
+      - check-command:
+          linux: |
+            git --version
+          mac: |
+            git --version
+          windows: |
+            git --version
+        info: "Git is not installed!"
+    script:
+      linux: |
+        echo "Hello {{inputs.user_name}}!"
+      mac: |
+        echo "Hello {{inputs.user_name}}!"
+      windows: |
+        echo "Hello {{inputs.user_name}}!"
