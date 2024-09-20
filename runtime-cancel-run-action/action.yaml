@@ -12,12 +12,17 @@ spec:
     en-us: docs/en-us/docs.md
   repository: https://github.com/stack-spot/workflow-stackspot-actions-runtime-selfhosted.git
   inputs:
-    - label: What is your name?
-      name: user_name
+    - label: Run id
+      name: run_id
       type: text
       required: false
-      pattern: '^[A-Za-z]+(?:\s[A-Za-z]+)*$'
-      help: 'Inform your name'
+      help: 'Inform execution Id'
+    - label: Force Cancel
+      name: force_cancel
+      type: bool 
+      default: false
+      required: false
+      help: 'Force cancel?'
   python:
     workdir: .
     script: script.py

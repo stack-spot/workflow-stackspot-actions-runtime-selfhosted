@@ -12,12 +12,60 @@ spec:
     en-us: docs/en-us/docs.md
   repository: https://github.com/stack-spot/workflow-stackspot-actions-runtime-selfhosted.git
   inputs:
-    - label: What is your name?
-      name: user_name
+    - label: Account client id
+      name: client_id
+      type: text
+      required: true
+      help: 'Inform account client id'
+    
+    - label: Account client secret key
+      name: client_key
+      type: text
+      required: true
+      help: 'Inform account client secret key'
+
+    - label: Account client realm
+      name: client_realm
+      type: text
+      required: true
+      help: 'Inform account client realm'
+
+    - label: Bucket to save generated tfstate files
+      name: tf_state_bucket_name
+      type: text
+      required: true
+      help: 'Inform bucket to save generated tfstate files'
+
+    - label: Region configuration for tfstate
+      name: tf_state_region
+      type: text
+      required: true
+      help: 'Inform region configuration for tfstate'
+
+    - label: Bucket to save generated iac files
+      name: iac_bucket_name
+      type: text
+      required: true
+      help: 'Inform bucket to save generated iac files'
+
+    - label: Region configuration for iac
+      name: iac_region
+      type: text
+      required: true
+      help: 'Inform region configuration for iac'
+
+    - label: Verbose configuration
+      name: verbose
+      type: bool
+      required: false
+      help: 'verbose configuration'
+
+    - label: Path to the directory where the .stk is located.
+      name: workdir
       type: text
       required: false
-      pattern: '^[A-Za-z]+(?:\s[A-Za-z]+)*$'
-      help: 'Inform your name'
+      help: 'Inform path to the directory where the .stk is located.'
+
   python:
     workdir: .
     script: script.py

@@ -12,27 +12,60 @@ spec:
     en-us: docs/en-us/docs.md
   repository: https://github.com/stack-spot/workflow-stackspot-actions-runtime-selfhosted.git
   inputs:
-    - label: What is your name?
-      name: user_name
+    - label: Environment used to deploy
+      name: environment
+      type: text
+      required: true
+      help: 'Inform environment used to deploy'
+
+    - label: Workspace used to deploy
+      name: workspace
+      type: text
+      required: true
+      help: 'Inform workspace used to deploy'
+
+    - label: Deploy version tag
+      name: version_tag
+      type: text
+      required: true
+      help: 'Inform deploy version tag'
+
+    - label: Branch to perform checkout in Runtime
+      name: branch
       type: text
       required: false
-      pattern: '^[A-Za-z]+(?:\s[A-Za-z]+)*$'
-      help: 'Inform your name'
+      help: 'Inform branch to perform checkout in Runtime'
+
+    - label: Path to API file to publish on StackSpot Catalog API
+      name: open_api_path
+      type: text
+      required: false
+      help: 'Inform path to API file to publish on StackSpot Catalog API'
+
+    - label: Dynamic Inputs
+      name: dynamic_inputs
+      type: text
+      required: false
+      help: '--key1 value1 --key2 value2'
+
+    - label: Verbose configuration
+      name: verbose
+      type: bool
+      required: false
+      default: true
+      help: 'verbose configuration'
+
   shell:
     workdir: .
-    requirements-check:
-      - check-command:
-          linux: |
-            git --version
-          mac: |
-            git --version
-          windows: |
-            git --version
-        info: "Git is not installed!"
+    
     script:
       linux: |
-        echo "Hello {{inputs.user_name}}!"
+        chmod +x {{component_path}}/script.sh
+        sh {{component_path}}/script.sh
       mac: |
-        echo "Hello {{inputs.user_name}}!"
+        chmod +x {{component_path}}/script.sh
+        sh {{component_path}}/script.sh
       windows: |
-        echo "Hello {{inputs.user_name}}!"
+        echo "Not supported"
+      
+
