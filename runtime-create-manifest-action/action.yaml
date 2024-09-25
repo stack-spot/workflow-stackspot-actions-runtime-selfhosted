@@ -55,6 +55,14 @@ spec:
       default: true
       help: 'verbose configuration'
 
+    - label: stk
+      name: stk
+      type: text
+      required: false
+      default: stk
+      help: 'stk'
+
+
   shell:
     workdir: .
     

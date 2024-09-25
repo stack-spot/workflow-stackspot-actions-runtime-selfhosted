@@ -64,17 +64,12 @@ spec:
     - label: "Path to mount inside the docker"
       name: path_to_mount
       type: text
-      default: "{{ github.workspace }} ??"
+      default: "."
       required: true
     - label: "Base Path Output"
       name: base_path_output
       type: text
       default: "."
-      required: false
-    - label: "Whether or not checkout is enabled."
-      name: CHECKOUT_BRANCH
-      type: bool
-      default: false
       required: false
   shell:
     workdir: .

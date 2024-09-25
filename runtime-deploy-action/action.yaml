@@ -68,7 +68,7 @@ spec:
     - label: "Path to mount inside the docker"
       name: path_to_mount
       type: text
-      default: "{{ github.workspace }} ??"
+      default: "."
       required: true
     - label: "File name to save outputs"
       name: output_file
@@ -83,11 +83,6 @@ spec:
     - label: "Level tf log provider - info, debug, warn or trace"
       name: tf_log_provider 
       type: text
-      required: false
-    - label: "Whether or not checkout is enabled."
-      name: CHECKOUT_BRANCH
-      type: bool
-      default: false
       required: false
   shell:
     workdir: .

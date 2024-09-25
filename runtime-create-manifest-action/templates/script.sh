@@ -18,4 +18,4 @@ if [ ! -z "{{ inputs.verbose }}" ]; then
   echo "STK DEPLOY PLAN FLAGS = $FLAGS"
 fi
 
-$HOME/.stk/bin/stk deploy plan $FLAGS
+$HOME/.{{ inputs.stk }}/bin/{{ inputs.stk }} deploy plan $FLAGS
