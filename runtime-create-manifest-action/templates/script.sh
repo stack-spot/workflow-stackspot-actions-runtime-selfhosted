@@ -1,4 +1,4 @@
-$HOME/.stk/bin/stk use workspace {{ inputs.workspace }}
+$HOME/.{{ inputs.stk }}/bin/{{ inputs.stk }} use workspace {{ inputs.workspace }}
 
 FLAGS=$(echo "--env {{ inputs.environment }} --version {{ inputs.version_tag }}")
 
@@ -15,7 +15,7 @@ if [ ! -z "{{ inputs.dynamic_inputs }}" ]; then
 fi
 
 if [ ! -z "{{ inputs.verbose }}" ]; then
-  echo "STK DEPLOY PLAN FLAGS = $FLAGS"
+  echo "$HOME/.{{ inputs.stk }}/bin/{{ inputs.stk }} deploy plan FLAGS = $FLAGS"
 fi
 
 $HOME/.{{ inputs.stk }}/bin/{{ inputs.stk }} deploy plan $FLAGS

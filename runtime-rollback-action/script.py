@@ -21,7 +21,7 @@ def safe_load(content: str) -> dict:
 
 
 def save_output(name: str, value: str):
-    with open("output.log", 'a') as output_file:
+    with open("rollback-output.log", 'a') as output_file:
         print(f'{name}={value}', file=output_file)
 
 

@@ -3,10 +3,7 @@ from oscli.core.http import post_with_authorization
 def run(metadata):
 
     RUN_ID = metadata.inputs.get('run_id')
-    FORCE = metadata.inputs.get('force_cancel')
 
-    print(FORCE)
-        
     if RUN_ID == "":
         print("- RUN_ID was not provided.")
         print("  No need to cancel it.")
@@ -17,7 +14,7 @@ def run(metadata):
 
     print(f"Requesting Run {RUN_ID} to be cancelled")
 
-    cancel_request = post_with_authorization(url=f"https://runtime-manager.stg.stackspot.com/v1/run/cancel/{RUN_ID}?force={FORCE}", 
+    cancel_request = post_with_authorization(url=f"https://runtime-manager.stg.stackspot.com/v1/run/cancel/{RUN_ID}?force=true", 
                                     headers={'Content-Type': 'application/json' },
                                     body=None,
                                     timeout=20)

@@ -17,12 +17,6 @@ spec:
       type: text
       required: false
       help: 'Inform execution Id'
-    - label: Force Cancel
-      name: force_cancel
-      type: bool 
-      default: false
-      required: false
-      help: 'Force cancel?'
   python:
     workdir: .
     script: script.py
