@@ -19,9 +19,9 @@ def safe_load(content: str) -> dict:
     return yml.load(StringIO(content))
 
 
-def save_output(name: str, value: str):
-    with open("manager-output.log", 'a') as output_file:
-        print(f'{name}={value}', file=output_file)
+def save_output(value: str):
+    with open("manager-output.log", 'w') as output_file:
+        print(value, file=output_file)
 
 def run(metadata):
     
@@ -155,8 +155,7 @@ def run(metadata):
         runType = d2["runType"]
         tasks = d2["tasks"]
 
-        save_output('tasks', tasks)
-        save_output('run_id', runId)
+        save_output(d2)
 
         print(f"- RUN {runType} successfully started with ID: {runId}")
         print(f"- RUN TASKS LIST: {tasks}")
