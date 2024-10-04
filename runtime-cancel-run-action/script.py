@@ -14,7 +14,7 @@ def run(metadata):
 
     print(f"Requesting Run {RUN_ID} to be cancelled")
 
-    cancel_request = post_with_authorization(url=f"https://runtime-manager.stg.stackspot.com/v1/run/cancel/{RUN_ID}?force=true", 
+    cancel_request = post_with_authorization(url=f"https://runtime-manager.v1.stackspot.com/v1/run/cancel/{RUN_ID}?force=true", 
                                     headers={'Content-Type': 'application/json' },
                                     body=None,
                                     timeout=20)

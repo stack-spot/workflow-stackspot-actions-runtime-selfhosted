@@ -143,7 +143,7 @@ def run(metadata):
 
     print("Deploying Self-Hosted...")
     
-    r2 = post_with_authorization(url=f"https://runtime-manager.stg.stackspot.com/v1/run/self-hosted/deploy/{manifest_type}", 
+    r2 = post_with_authorization(url=f"https://runtime-manager.v1.stackspot.com/v1/run/self-hosted/deploy/{manifest_type}", 
                                  body=request_data, 
                                  headers={'Content-Type': 'application/json' },
                                  timeout=20)

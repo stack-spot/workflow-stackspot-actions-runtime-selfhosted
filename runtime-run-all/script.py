@@ -14,9 +14,9 @@ def run(metadata):
     manifest_action = f'{metadata.inputs.get("base_path_actions")}/runtime-create-manifest-action'
     manager_action = f'{metadata.inputs.get("base_path_actions")}/runtime-manager-action'
     iac_action = f'{metadata.inputs.get("base_path_actions")}/runtime-iac-action'
-    container_url_iac = 'stackspot/runtime-job-iac:rc-2.19.0'
+    container_url_iac = 'stackspot/runtime-job-iac:latest'
     deploy_action = f'{metadata.inputs.get("base_path_actions")}/runtime-deploy-action'
-    container_url_deploy = 'stackspot/runtime-job-deploy:rc-2.36.0'
+    container_url_deploy = 'stackspot/runtime-job-deploy:latest'
 
     print(f"-----> Run runtime-create-manifest-action!")
 

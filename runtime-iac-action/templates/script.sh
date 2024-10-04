@@ -3,8 +3,8 @@ FLAGS=$(echo "-v {{ inputs.path_to_mount }}:/app-volume  \
 -e AUTHENTICATE_CLIENT_ID={{ inputs.client_id }} \
 -e AUTHENTICATE_CLIENT_SECRET={{ inputs.client_key }} \
 -e AUTHENTICATE_CLIENT_REALMS={{ inputs.client_realm }} \
--e AUTHENTICATE_URL="https://account-keycloak.stg.stackspot.com" \
--e FEATURES_API_MANAGER="https://runtime-manager.stg.stackspot.com" \
+-e AUTHENTICATE_URL="https://idm.stackspot.com" \
+-e FEATURES_API_MANAGER="https://runtime-manager.v1.stackspot.com" \
 -e REPOSITORY_NAME={{ inputs.repository_name }} \
 -e AWS_REGION={{ inputs.aws_region }}")
 

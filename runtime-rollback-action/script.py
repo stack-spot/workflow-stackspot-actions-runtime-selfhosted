@@ -107,7 +107,7 @@ def run(metadata):
 
     print("Deploying Self-Hosted Rollback..")
 
-    rollback_request = post_with_authorization(url=f"https://runtime-manager.stg.stackspot.com/v1/run/self-hosted/rollback/{stk_yaml_type}", 
+    rollback_request = post_with_authorization(url=f"https://runtime-manager.v1.stackspot.com/v1/run/self-hosted/rollback/{stk_yaml_type}", 
                                  body=request_data, 
                                  headers={'Content-Type': 'application/json' },
                                  timeout=20)
