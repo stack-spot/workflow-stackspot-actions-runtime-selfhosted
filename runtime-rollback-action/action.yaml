@@ -1,0 +1,72 @@
+schema-version: v3
+kind: action
+metadata:
+  name: runtime-rollback-action
+  display-name: runtime-rollback-action
+  description: runtime-rollback-action
+  version: 0.0.1
+spec:
+  type: python
+  docs:
+    pt-br: docs/pt-br/docs.md
+    en-us: docs/en-us/docs.md
+  repository: https://github.com/stack-spot/workflow-stackspot-actions-runtime-selfhosted.git
+  inputs:
+   - label: Workspace
+     name: workspace
+     type: text
+     required: true
+     help: "Workspace used to deploy"
+   
+   - label: Environment
+     name: environment
+     type: text
+     required: true
+     help: "Environment used to deploy"
+   
+   - label: Rollback Version Tag
+     name: version_tag
+     type: text
+     required: true
+     help: "Rollback version version tag"
+   
+   - label: TF State Bucket Name
+     name: tf_state_bucket_name
+     type: text
+     required: true
+     help: "Bucket to save generated tfstate files"
+   
+   - label: TF State Region
+     name: tf_state_region
+     type: text
+     required: true
+     help: "Region configuration for tfstate"
+   
+   - label: IAC Bucket Name
+     name: iac_bucket_name
+     type: text
+     required: true
+     help: "Bucket to save generated iac files"
+   
+   - label: IAC Region
+     name: iac_region
+     type: text
+     required: true
+     help: "Region configuration for iac"
+   
+   - label: Verbose Configuration
+     name: verbose
+     type: bool
+     required: false
+     help: "Verbose configuration"
+   
+   - label: Workdir
+     name: WORKDIR
+     type: text
+     required: false
+     default: "./"
+     help: "Path to the directory where the .stk is located."
+
+  python:
+    workdir: .
+    script: script.py
