@@ -16,49 +16,52 @@ FEATURES_BASEPATH_EBS = "/opt/runtime"
 FEATURES_TEMPLATES_FILEPATH = "/app/"
 FEATURES_BASEPATH_TERRAFORM = "/root/.asdf/shims/terraform"
 
-def check(result: subprocess.CompletedProcess) -> None:
+
+def check(result: subprocess.Popen) -> None:
     """
     Checks the result of a subprocess execution. If the return code is non-zero, 
     it logs an error message and exits the program.
 
     Args:
-        result (subprocess.CompletedProcess): The result of the subprocess execution.
+        result (subprocess.Popen): The result of the subprocess execution.
     """
+    result.wait()  # Wait for the process to complete
     if result.returncode != 0:
         logging.error(f"Failed to execute: {result.args}")
-        logging.error(f"Error output: {result.stderr}")
+        logging.error(f"Error output: {result.stderr.read()}")
         sys.exit(1)
 
-def run_command(command: List[str]) -> subprocess.CompletedProcess:
+
+def run_command(command: List[str]) -> subprocess.Popen:
     """
-    Runs a command using subprocess and returns the result.
+    Runs a command using subprocess.Popen and returns the result.
 
     Args:
         command (List[str]): The command to be executed as a list of strings.
 
     Returns:
-        subprocess.CompletedProcess: The result of the command execution.
+        subprocess.Popen: The result of the command execution.
     """
     try:
         logging.info(f"Running command: {' '.join(command)}")
-        result = subprocess.run(command, capture_output=True, text=True)
-        check(result)
-        return result
+        # Start the process
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        
+        # Read and print output in real-time
+        for line in process.stdout:
+            print(line, end="")  # Print each line as it is produced
+        
+        # Check the result after the process completes
+        check(process)
+        return process
     except Exception as e:
         logging.error(f"Exception occurred while running command: {command}")
         logging.error(str(e))
         sys.exit(1)
 
 
-
-def run(metadata):
-    inputs: dict = metadata.inputs
-    container_url: str = 'stackspot/runtime-job-deploy:latest'
-    run_task_id: str = inputs["run_task_id"]
-    output_file: str = inputs.get("output_file") or "deploy-output.json"
-    path_to_mount: str = inputs.get("path_to_mount") or "."
-    path_to_mount = f"{path_to_mount}:/app-volume" 
-
+def build_flags(inputs: dict) -> list:
+    
     docker_flags: dict = dict(
         FEATURES_LEVEL_LOG=inputs.get("features_level_log") or "info",
         FEATURES_TERRAFORM_LOGPROVIDER=inputs.get("tf_log_provider") or "info",
@@ -81,20 +84,28 @@ def run(metadata):
         FEATURES_TEMPLATES_FILEPATH=FEATURES_TEMPLATES_FILEPATH,
         FEATURES_BASEPATH_TERRAFORM=FEATURES_BASEPATH_TERRAFORM
     )
+    flags = []
+    for k, v in docker_flags.items():
+        flags += ["-e", f"{k}={v}"]
+    
+    return flags
 
-    cmd = [
-        "docker", 
-        "run", "--rm",
+
+def run(metadata):
+    inputs: dict = metadata.inputs
+    container_url: str = 'stackspot/runtime-job-deploy:latest'
+    run_task_id: str = inputs["run_task_id"]
+    output_file: str = inputs.get("output_file") or "deploy-output.json"
+    path_to_mount: str = inputs.get("path_to_mount") or "."
+    path_to_mount = f"{path_to_mount}:/app-volume" 
+
+    flags = build_flags(inputs)
+    cmd = ["docker", "run", "--rm", "-v", path_to_mount] + flags + [
         "--entrypoint=/app/stackspot-runtime-job-deploy",
         container_url,
         "start", 
         f"--run-task-id={run_task_id}", 
         f"--output-file={output_file}",
-        "-v", path_to_mount
     ]
-    flags = []
-    for k, v in docker_flags.items():
-        flags += ["-e", f"{k}={v}"]
-    docker_run = cmd + flags
 
-    run_command(docker_run)
+    run_command(cmd)

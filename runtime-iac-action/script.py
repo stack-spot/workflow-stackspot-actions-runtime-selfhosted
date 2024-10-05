@@ -94,6 +94,5 @@ def run(metadata):
         f"--run-task-id={run_task_id}", 
         f"--base-path-output={base_path_output}", 
     ]
-    docker_run = cmd
 
-    run_command(docker_run)
+    run_command(cmd)
