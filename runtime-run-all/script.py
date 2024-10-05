@@ -30,7 +30,12 @@ def run(metadata):
     with open('manager-output.log', 'r') as file:
         data = json.loads(file.read().replace("\'", "\""))
     
+    container_url_iac = 'stackspot/runtime-job-iac:latest'
+    container_url_deploy = 'stackspot/runtime-job-deploy:latest'
+    task_runners = dict(
+        IAC_SELF_HOSTED=lambda **i: run_action("runtime-iac-action", container_url=container_url_iac, **i),
+        DEPLOY_SELF_HOSTED=lambda **i: run_action("runtime-deploy-action", container_url=container_url_deploy, output_file="deploy-output.json", **i),
+    )
     for t in data['tasks']:
-        inputs = dict(run_task_id=t["runTaskId"])
-        t["taskType"] == "IAC_SELF_HOSTED" and run_action("", container_url=container_url_iac, **inputs)
-        t["taskType"] == "DEPLOY_SELF_HOSTED" and run_action("", container_url=container_url_deploy, output_file="deploy-output.json", **inputs)
+        runner = task_runners.get(t["taskType"]) 
+        runner(run_task_id=t["runTaskId"])
