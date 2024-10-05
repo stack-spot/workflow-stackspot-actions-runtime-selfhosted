@@ -1,54 +1,36 @@
-<!-- 
-******************************************
+## runtime-manager-self-hosted-deploy
 
-- THIS IS AN EXAMPLE OF HOW TO FILL OUT YOUR DOCUMENTATION OF CONTENT.
-
-- FILL OUT THE TEMPLATE BELOW WITH YOUR INFORMATION SO OTHER PEOPLE CAN USE IT. THIS DOCUMENTATION WILL APPEAR ON THE SECTION OF THE STACKSPOT PORTAL.
-
-******************************************
--->
-## Action name
-
-<!-- Write concisely describing your Action. -->
+This action is responsible for managing and executing a self-hosted deployment using the StackSpot Runtime Manager. It reads a manifest file, builds the necessary request data, and sends it to the Runtime Manager to initiate the deployment process.
 
 ## Requirements
 
-<!-- 
-[This is a guideline; delete this content and write your information outside this markup. <!-- ]
+Before using this action, ensure that you have the following:
 
-- Describe the requirements that the user needs to know before using the Action.
--->
+- **StackSpot CLI** installed and configured.
+- A valid `manifest.yaml` file in the root directory of your project.
+- The following environment variables set:
+  - `STK_RUNTIME_MANAGER_DOMAIN`: The domain for the StackSpot Runtime Manager (default: `https://runtime-manager.v1.stackspot.com`).
+- The following inputs provided:
+  - `tf_state_bucket_name`: The name of the bucket for Terraform state.
+  - `tf_state_region`: The region of the Terraform state bucket.
+  - `iac_bucket_name`: The name of the bucket for Infrastructure as Code (IaC).
+  - `iac_region`: The region of the IaC bucket.
 
 ## Usage
 
-<!-- 
-[This is a guideline; delete this content and write your information outside this markup. <!-- ]
+To use the `runtime-manager-self-hosted-deploy` action, follow these steps:
 
-Add the steps for the user to use your Action:
+1. Ensure you have the required inputs:
+   - **tf_state_bucket_name**: The name of the bucket for Terraform state.
+   - **tf_state_region**: The region of the Terraform state bucket.
+   - **iac_bucket_name**: The name of the bucket for Infrastructure as Code (IaC).
+   - **iac_region**: The region of the IaC bucket.
 
-- What are the inputs?
-- Which methods should we know?
-- What are the resources?
-- Add the Action dependencies, if necessary.
+2. Ensure you have a valid `manifest.yaml` file in the root directory of your project. This file should contain the necessary deployment information.
 
-Example: 
-On your application’s folder, run the **action-doc-template** action and follow the instructions:
-1. Execute the command:
-`
-stk run action /Users/Home/action-doc-template
-`
--->
+3. Run the action using the StackSpot CLI or integrate it into your CI/CD pipeline.
 
-## Release Notes
+### Example:
 
-<!-- 
-[This is a guideline; delete this content and write your information outside this markup. <!-- ]
-
-This section is only necessary if you publish a new Action version. Add what was changed, fixed, and the new features. 
-
-Example:
-###  action-doc-template v1.0.0
-
-#### Features
-Added new templates
--->
+```bash
+stk run action /path/to/runtime-manager-self-hosted-deploy

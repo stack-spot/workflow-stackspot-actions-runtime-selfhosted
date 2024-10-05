@@ -1,6 +1,4 @@
-## Action name
-
-`runtime-create-manifest-action`
+## runtime-create-manifest-action
 
 This action is responsible for creating a manifest for deployment in a specified environment and workspace. It allows users to specify a version tag and optionally provide a path to an OpenAPI file and dynamic inputs.
 

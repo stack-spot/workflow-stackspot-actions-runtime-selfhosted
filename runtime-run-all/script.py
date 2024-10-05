@@ -25,15 +25,13 @@ def run(metadata):
     run_action("runtime-create-manifest-action")
     run_action("runtime-manager-action")
 
-    # with open('manager-output.log', 'r') as file:
-    #     data = json.loads(file.read().replace("\'", "\""))
+    with open('manager-output.log', 'r') as file:
+        data = json.loads(file.read().replace("\'", "\""))
     
-    # container_url_iac = 'stackspot/runtime-job-iac:latest'
-    # container_url_deploy = 'stackspot/runtime-job-deploy:latest'
-    # task_runners = dict(
-    #     IAC_SELF_HOSTED=lambda **i: run_action("runtime-iac-action", container_url=container_url_iac, **i),
-    #     DEPLOY_SELF_HOSTED=lambda **i: run_action("runtime-deploy-action", container_url=container_url_deploy, output_file="deploy-output.json", **i),
-    # )
-    # for t in data['tasks']:
-    #     runner = task_runners.get(t["taskType"]) 
-    #     runner(run_task_id=t["runTaskId"])
+    task_runners = dict(
+        IAC_SELF_HOSTED=lambda **i: run_action("runtime-iac-action", **i),
+        DEPLOY_SELF_HOSTED=lambda **i: run_action("runtime-deploy-action", **i),
+    )
+    for t in data['tasks']:
+        runner = task_runners.get(t["taskType"]) 
+        runner(run_task_id=t["runTaskId"])
