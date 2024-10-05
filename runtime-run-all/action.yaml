@@ -87,7 +87,8 @@ spec:
     - label: "Features Log Level"
       name: features_level_log
       type: text
-      required: true
+      required: false
+
     - label: "CLIENT ID"
       name: client_id
       type: text
@@ -128,8 +129,7 @@ spec:
     - label: "Path to mount inside the docker"
       name: path_to_mount
       type: text
-      default: "."
-      required: true
+      required: false
 
     - label: "Base Path Output"
       name: base_path_output
