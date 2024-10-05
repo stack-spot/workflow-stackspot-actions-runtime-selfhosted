@@ -33,5 +33,5 @@ def run(metadata):
         DEPLOY_SELF_HOSTED=lambda **i: run_action("runtime-deploy-action", **i),
     )
     for t in data['tasks']:
-        runner = task_runners.get(t["taskType"]) 
-        runner(run_task_id=t["runTaskId"])
+        runner = task_runners.get(t["taskType"])
+        runner and runner(run_task_id=t["runTaskId"])

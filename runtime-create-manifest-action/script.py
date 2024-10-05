@@ -6,39 +6,50 @@ from typing import List, Optional
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def check(result: subprocess.CompletedProcess) -> None:
+
+def check(result: subprocess.Popen) -> None:
     """
     Checks the result of a subprocess execution. If the return code is non-zero, 
     it logs an error message and exits the program.
 
     Args:
-        result (subprocess.CompletedProcess): The result of the subprocess execution.
+        result (subprocess.Popen): The result of the subprocess execution.
     """
+    result.wait()  # Wait for the process to complete
     if result.returncode != 0:
         logging.error(f"Failed to execute: {result.args}")
-        logging.error(f"Error output: {result.stderr}")
+        logging.error(f"Error output: {result.stderr.read()}")
         sys.exit(1)
 
-def run_command(command: List[str]) -> subprocess.CompletedProcess:
+
+def run_command(command: List[str]) -> subprocess.Popen:
     """
-    Runs a command using subprocess and returns the result.
+    Runs a command using subprocess.Popen and returns the result.
 
     Args:
         command (List[str]): The command to be executed as a list of strings.
 
     Returns:
-        subprocess.CompletedProcess: The result of the command execution.
+        subprocess.Popen: The result of the command execution.
     """
     try:
         logging.info(f"Running command: {' '.join(command)}")
-        result = subprocess.run(command, capture_output=True, text=True)
-        check(result)
-        return result
+        # Start the process
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        
+        # Read and print output in real-time
+        for line in process.stdout:
+            print(line, end="")  # Print each line as it is produced
+        
+        # Check the result after the process completes
+        check(process)
+        return process
     except Exception as e:
         logging.error(f"Exception occurred while running command: {command}")
         logging.error(str(e))
         sys.exit(1)
 
+    
 def run(metadata) -> None:
     """
     Executes a series of StackSpot CLI commands to set the workspace and deploy a plan.

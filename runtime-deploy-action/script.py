@@ -2,6 +2,7 @@ import os
 import sys
 import subprocess
 import logging
+from typing import List
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -84,7 +85,7 @@ def run(metadata):
     cmd = [
         "docker", 
         "run", "--rm",
-        "--entrypoint=/app/stackspot-runtime-job-deploy"
+        "--entrypoint=/app/stackspot-runtime-job-deploy",
         container_url,
         "start", 
         f"--run-task-id={run_task_id}", 
