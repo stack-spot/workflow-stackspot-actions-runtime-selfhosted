@@ -4,7 +4,7 @@ metadata:
   name: runtime-manager-action
   display-name: runtime-manager-action
   description: runtime-manager-action
-  version: 0.0.1
+  version: 1.0.0
 spec:
   type: python
   docs:
@@ -35,18 +35,6 @@ spec:
       type: text
       required: true
       help: 'Inform region configuration for iac'
-
-    - label: Verbose configuration
-      name: verbose
-      type: bool
-      required: false
-      help: 'verbose configuration'
-
-    - label: Path to the directory where the .stk is located.
-      name: workdir
-      type: text
-      required: false
-      help: 'Inform path to the directory where the .stk is located.'
 
   python:
     workdir: .

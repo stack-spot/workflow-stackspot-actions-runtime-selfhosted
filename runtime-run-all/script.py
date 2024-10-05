@@ -23,7 +23,7 @@ class RunAction:
 def run(metadata):
     run_action = RunAction(metadata)
     run_action("runtime-create-manifest-action")
-    # run_action("runtime-manager-action")
+    run_action("runtime-manager-action")
 
     # with open('manager-output.log', 'r') as file:
     #     data = json.loads(file.read().replace("\'", "\""))

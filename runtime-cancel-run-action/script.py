@@ -1,6 +1,10 @@
 import os
 from oscli.core.http import post_with_authorization
 
+
+STK_RUNTIME_MANAGER_DOMAIN = os.getenv("STK_RUNTIME_MANAGER_DOMAIN", "https://runtime-manager.v1.stackspot.com")
+
+
 def run(metadata):
     """
     Cancels a running process identified by the provided RUN_ID.
@@ -39,13 +43,11 @@ def run(metadata):
     
     # Extract the RUN_ID from the metadata inputs
     RUN_ID = metadata.inputs['run_id']
-    stk_runtime_manager_domain = os.getenv("STK_RUNTIME_MANAGER_DOMAIN", "https://runtime-manager.v1.stackspot.com")
-    
     print(f"> Requesting Run {RUN_ID} to be cancelled")
     
     # Send a POST request to cancel the run
     cancel_request = post_with_authorization(
-        url=f"{stk_runtime_manager_domain}/v1/run/cancel/{RUN_ID}?force=true", 
+        url=f"{STK_RUNTIME_MANAGER_DOMAIN}/v1/run/cancel/{RUN_ID}?force=true", 
         headers={'Content-Type': 'application/json'},
         body=None,
         timeout=20
