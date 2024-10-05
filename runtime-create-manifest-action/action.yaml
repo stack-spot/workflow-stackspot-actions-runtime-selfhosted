@@ -6,9 +6,8 @@ metadata:
   description: runtime-create-manifest-action
   version: 0.0.1
 spec:
-  type: shell
+  type: python
   docs:
-    pt-br: docs/pt-br/docs.md
     en-us: docs/en-us/docs.md
   repository: https://github.com/stack-spot/workflow-stackspot-actions-runtime-selfhosted.git
   inputs:
@@ -30,12 +29,6 @@ spec:
       required: true
       help: 'Inform deploy version tag'
 
-    - label: Branch to perform checkout in Runtime
-      name: branch
-      type: text
-      required: false
-      help: 'Inform branch to perform checkout in Runtime'
-
     - label: Path to API file to publish on StackSpot Catalog API
       name: open_api_path
       type: text
@@ -48,32 +41,9 @@ spec:
       required: false
       help: '--key1 value1 --key2 value2'
 
-    - label: Verbose configuration
-      name: verbose
-      type: bool
-      required: false
-      default: true
-      help: 'verbose configuration'
-
-    - label: stk
-      name: stk
-      type: text
-      required: false
-      default: stk
-      help: 'stk'
-
-
-  shell:
+  python:
     workdir: .
+    script: script.py
     
-    script:
-      linux: |
-        chmod +x {{component_path}}/script.sh
-        sh {{component_path}}/script.sh
-      mac: |
-        chmod +x {{component_path}}/script.sh
-        sh {{component_path}}/script.sh
-      windows: |
-        echo "Not supported"
       
 

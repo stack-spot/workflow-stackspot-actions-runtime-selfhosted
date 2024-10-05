@@ -1,54 +1,29 @@
-<!-- 
-******************************************
-
-- THIS IS AN EXAMPLE OF HOW TO FILL OUT YOUR DOCUMENTATION OF CONTENT.
-
-- FILL OUT THE TEMPLATE BELOW WITH YOUR INFORMATION SO OTHER PEOPLE CAN USE IT. THIS DOCUMENTATION WILL APPEAR ON THE SECTION OF THE STACKSPOT PORTAL.
-
-******************************************
--->
 ## Action name
 
-<!-- Write concisely describing your Action. -->
+`runtime-create-manifest-action`
+
+This action is responsible for creating a manifest for deployment in a specified environment and workspace. It allows users to specify a version tag and optionally provide a path to an OpenAPI file and dynamic inputs.
 
 ## Requirements
 
-<!-- 
-[This is a guideline; delete this content and write your information outside this markup. <!-- ]
+Before using this action, ensure that you have the following:
 
-- Describe the requirements that the user needs to know before using the Action.
--->
+- StackSpot CLI installed and configured.
+- A valid workspace and environment where the deployment will take place.
+- (Optional) An OpenAPI file if you want to publish it to the StackSpot Catalog API.
+- (Optional) Dynamic inputs in the form of key-value pairs.
 
 ## Usage
 
-<!-- 
-[This is a guideline; delete this content and write your information outside this markup. <!-- ]
+To use the `runtime-create-manifest-action`, follow these steps:
 
-Add the steps for the user to use your Action:
+1. Ensure you have the required inputs:
+   - **Environment**: The environment where the deployment will occur.
+   - **Workspace**: The workspace to be used for the deployment.
+   - **Version Tag**: The version tag for the deployment.
+   - **OpenAPI Path** (optional): The path to the OpenAPI file to publish on StackSpot Catalog API.
+   - **Dynamic Inputs** (optional): Additional dynamic inputs in the form of key-value pairs (e.g., `--key1 value1 --key2 value2`).
 
-- What are the inputs?
-- Which methods should we know?
-- What are the resources?
-- Add the Action dependencies, if necessary.
-
-Example: 
-On your application’s folder, run the **action-doc-template** action and follow the instructions:
-1. Execute the command:
-`
-stk run action /Users/Home/action-doc-template
-`
--->
-
-## Release Notes
-
-<!-- 
-[This is a guideline; delete this content and write your information outside this markup. <!-- ]
-
-This section is only necessary if you publish a new Action version. Add what was changed, fixed, and the new features. 
-
-Example:
-###  action-doc-template v1.0.0
-
-#### Features
-Added new templates
--->
+2. Run the action using the StackSpot CLI:
+   ```bash
+   stk run action /path/to/runtime-create-manifest-action

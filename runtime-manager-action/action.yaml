@@ -8,7 +8,6 @@ metadata:
 spec:
   type: python
   docs:
-    pt-br: docs/pt-br/docs.md
     en-us: docs/en-us/docs.md
   repository: https://github.com/stack-spot/workflow-stackspot-actions-runtime-selfhosted.git
   inputs:

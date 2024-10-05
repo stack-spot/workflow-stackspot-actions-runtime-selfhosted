@@ -4,19 +4,18 @@ metadata:
   name: runtime-cancel-run-action
   display-name: runtime-cancel-run-action
   description: runtime-cancel-run-action
-  version: 0.0.1
+  version: 1.0.0
 spec:
   type: python
   docs:
-    pt-br: docs/pt-br/docs.md
     en-us: docs/en-us/docs.md
   repository: https://github.com/stack-spot/workflow-stackspot-actions-runtime-selfhosted.git
   inputs:
     - label: Run id
       name: run_id
       type: text
-      required: false
-      help: 'Inform execution Id'
+      pattern: "^[0-9A-HJ-NP-Z]{26}$"
+      required: true
   python:
     workdir: .
     script: script.py
