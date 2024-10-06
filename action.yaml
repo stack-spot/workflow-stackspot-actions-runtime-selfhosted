@@ -1,0 +1,20 @@
+schema-version: v3
+kind: action
+metadata:
+  name: workflow-main-action
+  display-name: Workflows main action
+  description: Responsible to define which workflow will be executed based on type.
+  version: 1.0.0
+spec:
+  type: python
+  docs:
+    en-us: docs/en-us/docs.md
+  repository: https://github.com/stack-spot/workflow-stackspot-actions-runtime-selfhosted.git
+  inputs:
+    - label: Workflow type
+      name: workflow_type
+      type: text
+      required: true
+  python:
+    workdir: .
+    script: script.py
