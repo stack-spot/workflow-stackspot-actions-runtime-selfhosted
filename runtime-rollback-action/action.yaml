@@ -12,12 +12,6 @@ spec:
     en-us: docs/en-us/docs.md
   repository: https://github.com/stack-spot/workflow-stackspot-actions-runtime-selfhosted.git
   inputs:
-   - label: Workspace
-     name: workspace
-     type: text
-     required: true
-     help: "Workspace used to deploy"
-   
    - label: Environment
      name: environment
      type: text

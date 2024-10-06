@@ -17,12 +17,6 @@ spec:
       required: true
       help: 'Inform environment used to deploy'
 
-    - label: Workspace used to deploy
-      name: workspace
-      type: text
-      required: true
-      help: 'Inform workspace used to deploy'
-
     - label: Deploy version tag
       name: version_tag
       type: text

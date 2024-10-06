@@ -52,13 +52,12 @@ def run_command(command: List[str]) -> subprocess.Popen:
     
 def run(metadata) -> None:
     """
-    Executes a series of StackSpot CLI commands to set the workspace and deploy a plan.
+    Executes a cmd of StackSpot CLI to deploy a plan.
 
     Args:
         metadata (object): An object containing the inputs required for the execution.
     """
     stk = sys.argv[0]
-    workspace = metadata.inputs['workspace']
     environment = metadata.inputs['environment']
     version_tag = metadata.inputs['version_tag']
     open_api_path: Optional[str] = metadata.inputs.get('open_api_path')
@@ -72,9 +71,7 @@ def run(metadata) -> None:
         optional_params += dynamic_inputs.split()
 
     # Prepare the StackSpot CLI commands
-    stk_use_workspace = [stk, "use", "workspace", workspace]
     stk_deploy_plan = [stk, "deploy", "plan", "--env", environment, "--version", version_tag] + optional_params
 
     # Execute the commands
-    run_command(stk_use_workspace)
     run_command(stk_deploy_plan)
