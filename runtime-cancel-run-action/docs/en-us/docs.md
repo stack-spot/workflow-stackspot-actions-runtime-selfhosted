@@ -1,54 +1,18 @@
-<!-- 
-******************************************
+## runtime-cancel-run-action
 
-- THIS IS AN EXAMPLE OF HOW TO FILL OUT YOUR DOCUMENTATION OF CONTENT.
+Cancel Running Process
 
-- FILL OUT THE TEMPLATE BELOW WITH YOUR INFORMATION SO OTHER PEOPLE CAN USE IT. THIS DOCUMENTATION WILL APPEAR ON THE SECTION OF THE STACKSPOT PORTAL.
-
-******************************************
--->
-## Action name
-
-<!-- Write concisely describing your Action. -->
+This action cancels a running process identified by a `RUN_ID` by sending a cancellation request to the StackSpot Runtime Manager API.
 
 ## Requirements
 
-<!-- 
-[This is a guideline; delete this content and write your information outside this markup. <!-- ]
-
-- Describe the requirements that the user needs to know before using the Action.
--->
+- The user must have access to the StackSpot Runtime Manager API.
+- The `run_id` of the process to be cancelled must be provided.
 
 ## Usage
 
-<!-- 
-[This is a guideline; delete this content and write your information outside this markup. <!-- ]
-
-Add the steps for the user to use your Action:
-
-- What are the inputs?
-- Which methods should we know?
-- What are the resources?
-- Add the Action dependencies, if necessary.
-
-Example: 
-On your application’s folder, run the **action-doc-template** action and follow the instructions:
-1. Execute the command:
-`
-stk run action /Users/Home/action-doc-template
-`
--->
-
-## Release Notes
-
-<!-- 
-[This is a guideline; delete this content and write your information outside this markup. <!-- ]
-
-This section is only necessary if you publish a new Action version. Add what was changed, fixed, and the new features. 
-
-Example:
-###  action-doc-template v1.0.0
-
-#### Features
-Added new templates
--->
+1. Input:
+   - `run_id`: The ULID of the process to be cancelled.
+   
+2. Example usage:
+   stk run action . --run_id 01J9EKHN5V2R75MGGT8KMEAGH1

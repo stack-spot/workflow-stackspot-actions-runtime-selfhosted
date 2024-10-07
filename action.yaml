@@ -1,9 +1,9 @@
 schema-version: v3
 kind: action
 metadata:
-  name: runtime-cancel-run-action
-  display-name: runtime-cancel-run-action
-  description: runtime-cancel-run-action
+  name: workflow-main-action
+  display-name: Workflows main action
+  description: Responsible to define which workflow will be executed based on type.
   version: 1.0.0
 spec:
   type: python
@@ -11,10 +11,9 @@ spec:
     en-us: docs/en-us/docs.md
   repository: https://github.com/stack-spot/workflow-stackspot-actions-runtime-selfhosted.git
   inputs:
-    - label: Run id
-      name: run_id
+    - label: Workflow type
+      name: workflow_type
       type: text
-      pattern: "^[0-9A-HJ-NP-Z]{26}$"
       required: true
   python:
     workdir: .

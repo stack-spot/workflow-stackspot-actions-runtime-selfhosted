@@ -1,3 +1,4 @@
+import os
 import json
 from pathlib import Path
 from ruamel.yaml import YAML
@@ -5,7 +6,22 @@ from io import StringIO
 from typing import Dict
 from oscli.core.http import post_with_authorization
 
+# Constants
+STK_RUNTIME_MANAGER_DOMAIN = os.getenv("STK_RUNTIME_MANAGER_DOMAIN", "https://runtime-manager.v1.stackspot.com")
+TYPE_PARSER = {"application": "app", "shared-infrastructure": "infra"}
+MANIFEST_FILE = 'manifest.yaml'
+OUTPUT_FILE = 'manager-output.log'
+HEADERS = {'Content-Type': 'application/json'}
+TIMEOUT = 20
+
+
 def yaml() -> YAML:
+    """
+    Initializes and returns a YAML parser with specific configurations.
+    
+    Returns:
+        YAML: A configured YAML parser.
+    """
     yml = YAML()
     yml.indent(mapping=2, sequence=4, offset=2)
     yml.allow_unicode = True
@@ -15,156 +31,124 @@ def yaml() -> YAML:
 
 
 def safe_load(content: str) -> dict:
+    """
+    Safely loads a YAML string into a Python dictionary.
+    
+    Args:
+        content (str): The YAML content as a string.
+    
+    Returns:
+        dict: The parsed YAML content as a dictionary.
+    """
     yml = yaml()
     return yml.load(StringIO(content))
 
 
-def save_output(value: str):
-    with open("manager-output.log", 'w') as output_file:
-        print(value, file=output_file)
-
-def run(metadata):
+def get_manifest() -> dict:
+    """
+    Reads and parses the 'manifest.yaml' file into a dictionary.
     
-    TF_STATE_BUCKET_NAME = metadata.inputs.get("tf_state_bucket_name")
-    TF_STATE_REGION = metadata.inputs.get("tf_state_region")
-    IAC_BUCKET_NAME = metadata.inputs.get("iac_bucket_name")
-    IAC_REGION = metadata.inputs.get("iac_region")
-    VERBOSE = metadata.inputs.get("verbose")
-
-    inputs_list = [TF_STATE_BUCKET_NAME, TF_STATE_REGION, IAC_BUCKET_NAME, IAC_REGION]
-
-    if None in inputs_list:
-        print("- Some mandatory input is empty. Please, check the input list.")
+    Returns:
+        dict: The parsed manifest content.
+    
+    Raises:
+        FileNotFoundError: If the 'manifest.yaml' file is not found.
+    """
+    try:
+        with open(Path(MANIFEST_FILE), 'r') as file:
+            manifesto_yaml = file.read()
+        manifest = safe_load(manifesto_yaml)
+        return manifest
+    except FileNotFoundError:
+        print(f"> Error: {MANIFEST_FILE} not found.")
+        exit(1)
+    except Exception as e:
+        print(f"> Error reading {MANIFEST_FILE}: {e}")
         exit(1)
 
-    with open(Path('manifest.yaml'), 'r') as file:
-        manifesto_yaml = file.read()
 
-    manifesto_dict = safe_load(manifesto_yaml)
-
-    if VERBOSE is not None:
-        print("- MANIFESTO:", manifesto_dict)
-
-    manifestoType = manifesto_dict["manifesto"]["kind"]
-    appOrInfraId = manifesto_dict["manifesto"]["spec"]["id"]
-
-    print(f"{manifestoType} project identified, with ID: {appOrInfraId}")
-
-
-    version_tag = manifesto_dict["versionTag"]
-    if version_tag is None:
-        print("- Version Tag not informed or couldn't be extracted.")
-        exit(1) 
+def save_output(value: dict):
+    """
+    Saves the provided value to the 'manager-output.log' file.
     
-    is_api = manifesto_dict["isApi"]
-    if is_api is None:
-        print("- API TYPE not informed or couldn't be extracted.")
-        exit(1) 
+    Args:
+        value (dict): The content to be saved in the log file.
+    """
+    with open(OUTPUT_FILE, 'w') as output_file:
+        json.dump(value, output_file, indent=4)
+    print(f"> Output saved to {OUTPUT_FILE}")
     
-    envId = manifesto_dict["envId"]
-    if envId is None:
-        print("- ENVIRONMENT ID not informed or couldn't be extracted.")
-        exit(1) 
+
+def build_request(action_inputs: dict, app_infra_manifest: dict) -> dict:
+    """
+    Builds the request data for the self-hosted deployment by merging the action inputs and manifest data.
     
-    wksId = manifesto_dict["workspaceId"] 
-    if wksId is None:
-        print("- WORKSPACE ID not informed or couldn't be extracted.")
-        exit(1) 
-
-    branch = None
-    if "runConfig" in manifesto_dict: 
-        branch = manifesto_dict["runConfig"]["checkoutBranch"]
-        print("Branch informed:", branch)
+    Args:
+        action_inputs (dict): The inputs provided for the action (e.g., bucket names, regions).
+        app_infra_manifest (dict): The parsed manifest data.
     
-    api_contract_path = None
-    if "apiContractPath" in manifesto_dict: 
-        api_contract_path = manifesto_dict["apiContractPath"]
-        print("API contract path informed:", api_contract_path)
-
-    request_data = json.dumps(manifesto_dict)
-
-    config_data = json.dumps(
-        {
+    Returns:
+        dict: The complete request data for the deployment.
+    """
+    try:
+        config_data = {
             "config": {
                 "tfstate": {
-                    "bucket": TF_STATE_BUCKET_NAME,
-                    "region": TF_STATE_REGION
+                    "bucket": action_inputs["tf_state_bucket_name"],
+                    "region": action_inputs["tf_state_region"]
                 },
                 "iac": {
-                    "bucket": IAC_BUCKET_NAME,
-                    "region": IAC_REGION
+                    "bucket": action_inputs["iac_bucket_name"],
+                    "region": action_inputs["iac_region"]
                 }
-            }
+            },
+            "pipelineUrl": "http://stackspot.com",
         }
-    )
-
-    pipeline_url = {
-        "pipelineUrl": "http://stackspot.com"
-    }
-
-    request_data = json.loads(request_data)
-    request_data = {
-        **request_data,
-        **json.loads(config_data),
-        **pipeline_url,
-    }
-
-    if branch is not None:
-        branch_data = json.dumps(
-            {
-                "runConfig": {
-                "branch": branch
-                }
-            }
-        )
-        request_data = {**request_data, **json.loads(branch_data)}
-
-    if api_contract_path is not None:
-        api_data = json.dumps(
-            {
-                "apiContractPath": api_contract_path
-            }
-        )
-        request_data = {**request_data, **json.loads(api_data)}
-
-    #request_data = json.dumps(request_data)
-
-    if VERBOSE is not None:
-        print("- DEPLOY RUN REQUEST DATA:", request_data)
-    
-
-    if manifestoType == 'application':
-        manifest_type = 'app'
-    elif manifestoType == 'shared-infrastructure':
-        manifest_type = 'infra'
-    else:
-        print("- MANIFESTO TYPE not recognized. Please, check the input.")
-        exit(1)
-
-    print("Deploying Self-Hosted...")
-    
-    r2 = post_with_authorization(url=f"https://runtime-manager.v1.stackspot.com/v1/run/self-hosted/deploy/{manifest_type}", 
-                                 body=request_data, 
-                                 headers={'Content-Type': 'application/json' },
-                                 timeout=20)
-    
-
-    if r2.status_code == 201:
-        d2 = r2.json()
-        runId = d2["runId"]
-        runType = d2["runType"]
-        tasks = d2["tasks"]
-
-        save_output(d2)
-
-        print(f"- RUN {runType} successfully started with ID: {runId}")
-        print(f"- RUN TASKS LIST: {tasks}")
-
-    else:
-        print("- Error starting self hosted deploy run")
-        print("- Status:", r2.status_code)
-        print("- Error:", r2.reason)
-        print("- Response:", r2.text)    
+        # Merge the manifest data with the configuration data
+        request_data = {**app_infra_manifest, **config_data}
+        print(f"> Runtime manager run self hosted deploy request data:\n{json.dumps(request_data, indent=4)}")
+        return request_data
+    except KeyError as e:
+        print(f"> Error: Missing required input {e}")
         exit(1)
 
 
+def runtime_manager_run_self_hosted_deploy(request_data: dict, manifest: dict):
+    """
+    Sends a request to the StackSpot Runtime Manager to start a self-hosted deployment.
+    
+    Args:
+        request_data (dict): The request data for the deployment.
+        manifest (dict): The parsed manifest data.
+    
+    Raises:
+        SystemExit: If the deployment request fails.
+    """
+    manifest_type = manifest["manifesto"]["kind"]
+    url = f"{STK_RUNTIME_MANAGER_DOMAIN}/v1/run/self-hosted/deploy/{TYPE_PARSER[manifest_type]}"
+    
+    print("> Calling runtime manager to define tasks...")
+    response = post_with_authorization(url=url, body=request_data, headers=HEADERS, timeout=TIMEOUT)
+
+    if response.ok:
+        # Parse the response and extract relevant data
+        response_data = response.json()
+        print(f"> Deploy successfully started:\n{json.dumps(response_data, indent=4)}")
+        
+        # Save the response to the output log
+        save_output(response_data)
+    else:
+        print(f"> Error: Failed to start self-hosted deploy run. Status: {response.status_code}")
+        print(f"> Response: {response.text}")
+        exit(1)
+
+
+def run(metadata):
+    # Load the manifest file
+    manifest = get_manifest()
+    
+    # Build the request data
+    request = build_request(metadata.inputs, manifest)
+    
+    # Execute the deployment request
+    runtime_manager_run_self_hosted_deploy(request, manifest)
