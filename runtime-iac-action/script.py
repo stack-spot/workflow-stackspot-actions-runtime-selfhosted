@@ -10,6 +10,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 STK_IAM_DOMAIN = os.getenv("STK_IAM_DOMAIN", "https://idm.stackspot.com")
 STK_RUNTIME_MANAGER_DOMAIN = os.getenv("STK_RUNTIME_MANAGER_DOMAIN", "https://runtime-manager.v1.stackspot.com")
+CONTAINER_IAC_URL = os.getenv("CONTAINER_IAC_URL", "stackspot/runtime-job-iac:latest")
 
 
 def check(result: subprocess.Popen) -> None:
@@ -80,7 +81,6 @@ def build_flags(inputs: dict) -> list:
 
 def run(metadata):
     inputs: dict = metadata.inputs
-    container_url: str = 'stackspot/runtime-job-iac:latest'
     run_task_id: str = inputs["run_task_id"]
     base_path_output: str = inputs.get("base_path_output") or "."
     path_to_mount: str = inputs.get("path_to_mount") or "."
@@ -89,7 +89,7 @@ def run(metadata):
     flags = build_flags(inputs)
     cmd = ["docker", "run", "--rm", "-v", path_to_mount] + flags + [
         "--entrypoint=/app/stackspot-runtime-job-iac",
-        container_url, 
+        CONTAINER_IAC_URL, 
         "start",
         f"--run-task-id={run_task_id}", 
         f"--base-path-output={base_path_output}", 

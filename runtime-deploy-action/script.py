@@ -10,6 +10,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 STK_IAM_DOMAIN = os.getenv("STK_IAM_DOMAIN", "https://idm.stackspot.com")
 STK_RUNTIME_MANAGER_DOMAIN = os.getenv("STK_RUNTIME_MANAGER_DOMAIN", "https://runtime-manager.v1.stackspot.com")
+CONTAINER_DEPLOY_URL = os.getenv("CONTAINER_DEPLOY_URL", "stackspot/runtime-job-deploy:latest")
 
 FEATURES_BASEPATH_TMP = "/tmp/runtime/deploys"
 FEATURES_BASEPATH_EBS = "/opt/runtime"
@@ -93,7 +94,6 @@ def build_flags(inputs: dict) -> list:
 
 def run(metadata):
     inputs: dict = metadata.inputs
-    container_url: str = 'stackspot/runtime-job-deploy:latest'
     run_task_id: str = inputs["run_task_id"]
     output_file: str = inputs.get("output_file") or "deploy-output.json"
     path_to_mount: str = inputs.get("path_to_mount") or "."
@@ -102,7 +102,7 @@ def run(metadata):
     flags = build_flags(inputs)
     cmd = ["docker", "run", "--rm", "-v", path_to_mount] + flags + [
         "--entrypoint=/app/stackspot-runtime-job-deploy",
-        container_url,
+        CONTAINER_DEPLOY_URL,
         "start", 
         f"--run-task-id={run_task_id}", 
         f"--output-file={output_file}",
