@@ -87,7 +87,7 @@ def run(metadata):
     path_to_mount = f"{path_to_mount}:/app-volume" 
 
     flags = build_flags(inputs)
-    cmd = ["docker", "run", "--rm", "-v", path_to_mount] + flags + [
+    cmd = ["docker", "run", "--rm", "-v", path_to_mount, "--cgroups=disables"] + flags + [
         "--entrypoint=/app/stackspot-runtime-job-iac",
         container_url, 
         "start",
