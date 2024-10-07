@@ -1,0 +1,46 @@
+name: STK actions quality-check
+
+on:
+  workflow_call:
+    inputs:
+      realm:
+        description: The realm of the account.
+        required: false
+        type: string
+        default: "stackspot"
+    secrets:
+      stk-client-id:
+        required: true
+      stk-client-secret:
+        required: true
+
+jobs:
+  stackspot-runtime-v2:
+    name: StackSpot Runtime (v2)
+    runs-on: ubuntu-latest
+    env:
+      LANG: C.UTF-8
+      LANGUAGE: C.UTF-8
+      LC_ALL: C.UTF-8
+      PYTHONIOENCODING: utf-8
+    steps:
+      - run: sudo apt update && sudo apt install -y curl unzip git jq
+        name: install dependencies
+      - name: Setup STK CLI
+        run: |
+          curl \
+            --fail \
+            --http2-prior-knowledge \
+            --location \
+            --output /tmp/stk.deb \
+            --silent \
+            --show-error \
+            --tlsv1.3 \
+            https://stk.stackspot.com/installer/linux/stk.deb
+          sudo dpkg --install /tmp/stk.deb || echo installed
+          rm --force /tmp/stk.deb
+      - name: Show STK CLI  version
+        run: $HOME/.stk/bin/stk --version
+      - name: Login StackSpot
+        run: |
+          $HOME/.stk/bin/stk login -id ${{ secrets.stk-client-id }} -key ${{ secrets.stk-client-secret }} -r ${{ inputs.realm }}
