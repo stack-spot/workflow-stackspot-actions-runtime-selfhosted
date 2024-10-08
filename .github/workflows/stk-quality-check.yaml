@@ -44,3 +44,45 @@ jobs:
       - name: Validate main action
         run: |
           $HOME/.stk/bin/stk validate action
+
+      - name: Validate runtime-cancel-run-action action
+        run: |
+          cd runtime-cancel-run-action
+          $HOME/.stk/bin/stk validate action
+      
+      - name: Validate runtime-create-manifest-action action
+        run: |
+          cd runtime-create-manifest-action
+          $HOME/.stk/bin/stk validate action
+
+      - name: Validate runtime-deploy-action action
+        run: |
+          cd runtime-deploy-action
+          $HOME/.stk/bin/stk validate action
+
+      - name: Validate runtime-destroy-action action
+        run: |
+          cd runtime-destroy-action
+          $HOME/.stk/bin/stk validate action
+
+      - name: Validate runtime-iac-action action
+        run: |
+          cd runtime-iac-action
+          $HOME/.stk/bin/stk validate action
+
+      - name: Validate runtime-manager-action action
+        run: |
+          cd runtime-manager-action
+          $HOME/.stk/bin/stk validate action
+
+      - name: Validate runtime-rollback-action action
+        run: |
+          cd runtime-rollback-action
+          $HOME/.stk/bin/stk validate action
+
+      - name: Validate runtime-matrix action
+        run: |
+          cd runtime-matrix
+          $HOME/.stk/bin/stk validate action
+
+      
