@@ -6,16 +6,16 @@ metadata:
   description: runtime-destroy-action
   version: 0.0.1
 spec:
-  type: shell
+  type: python
   docs:
-    pt-br: docs/pt-br/docs.md
     en-us: docs/en-us/docs.md
   repository: https://github.com/stack-spot/workflow-stackspot-actions-runtime-selfhosted.git
   inputs:
     - label: "Features Log Level"
       name: features_level_log
       type: text
-      required: true
+      required: false
+
     - label: "CLIENT ID"
       name: client_id
       type: text
@@ -56,20 +56,17 @@ spec:
       name: run_task_id
       type: text
       required: true
-    - label: "Deploy Container url"
-      name: container_url
-      type: text
-      default: "stackspot/runtime-job-destroy:latest"
-      required: false
+
     - label: "Features Terraform Modules"
       name: features_terraform_modules
       type: text
       required: false
+    
     - label: "Path to mount inside the docker"
       name: path_to_mount
       type: text
-      default: "."
-      required: true
+      required: false
+
     - label: "If Runtimes will allow execution of the local-exec command within terraform"
       name: localexec_enabled
       type: bool
@@ -79,16 +76,7 @@ spec:
       name: tf_log_provider 
       type: text
       required: false
-  shell:
+  
+  python:
     workdir: .
-    
-    script:
-      linux: |
-        chmod +x {{component_path}}/script.sh
-        sh {{component_path}}/script.sh
-      mac: |
-        chmod +x {{component_path}}/script.sh
-        sh {{component_path}}/script.sh
-      windows: |
-        echo "Not supported"
-      
+    script: script.py
