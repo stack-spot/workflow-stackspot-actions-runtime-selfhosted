@@ -4,12 +4,14 @@ import logging
 from typing import List, Optional
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 
 def check(result: subprocess.Popen) -> None:
     """
-    Checks the result of a subprocess execution. If the return code is non-zero, 
+    Checks the result of a subprocess execution. If the return code is non-zero,
     it logs an error message and exits the program.
 
     Args:
@@ -35,12 +37,14 @@ def run_command(command: List[str]) -> subprocess.Popen:
     try:
         logging.info(f"Running command: {' '.join(command)}")
         # Start the process
-        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        
+        process = subprocess.Popen(
+            command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+        )
+
         # Read and print output in real-time
         for line in process.stdout:
             print(line, end="")  # Print each line as it is produced
-        
+
         # Check the result after the process completes
         check(process)
         return process
@@ -49,7 +53,7 @@ def run_command(command: List[str]) -> subprocess.Popen:
         logging.error(str(e))
         sys.exit(1)
 
-    
+
 def run(metadata) -> None:
     """
     Executes a cmd of StackSpot CLI to deploy a plan.
@@ -58,10 +62,10 @@ def run(metadata) -> None:
         metadata (object): An object containing the inputs required for the execution.
     """
     stk = sys.argv[0]
-    environment = metadata.inputs['environment']
-    version_tag = metadata.inputs['version_tag']
-    open_api_path: Optional[str] = metadata.inputs.get('open_api_path')
-    dynamic_inputs: Optional[str] = metadata.inputs.get('dynamic_inputs')
+    environment = metadata.inputs["environment"]
+    version_tag = metadata.inputs["version_tag"]
+    open_api_path: Optional[str] = metadata.inputs.get("open_api_path")
+    dynamic_inputs: Optional[str] = metadata.inputs.get("dynamic_inputs")
 
     # Prepare optional parameters for the deploy command
     optional_params = []
@@ -71,7 +75,15 @@ def run(metadata) -> None:
         optional_params += dynamic_inputs.split()
 
     # Prepare the StackSpot CLI commands
-    stk_deploy_plan = [stk, "deploy", "plan", "--env", environment, "--version", version_tag] + optional_params
+    stk_deploy_plan = [
+        stk,
+        "deploy",
+        "plan",
+        "--env",
+        environment,
+        "--version",
+        version_tag,
+    ] + optional_params
 
     # Execute the commands
     run_command(stk_deploy_plan)
