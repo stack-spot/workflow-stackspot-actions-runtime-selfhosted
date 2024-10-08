@@ -42,7 +42,7 @@ def cancel_deploy_run(run_action: RunAction):
 
 
 def run(metadata):
-    workflows = dict(deploy=deploy_workflow, cancel_deploy=cancel_deploy_run)
+    workflows = dict(deploy=deploy_workflow, cancel=cancel_deploy_run)
     run_action = RunAction(metadata)
     workflow_runner = workflows.get(metadata.inputs["workflow_type"])
     workflow_runner and workflow_runner(run_action=run_action)

@@ -1,18 +1,7 @@
 name: STK actions quality-check
 
 on:
-  workflow_call:
-    inputs:
-      realm:
-        description: The realm of the account.
-        required: false
-        type: string
-        default: "stackspot"
-    secrets:
-      stk-client-id:
-        required: true
-      stk-client-secret:
-        required: true
+  pull_request:
 
 jobs:
   stackspot-runtime-v2:
@@ -24,8 +13,13 @@ jobs:
       LC_ALL: C.UTF-8
       PYTHONIOENCODING: utf-8
     steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
       - run: sudo apt update && sudo apt install -y curl unzip git jq
         name: install dependencies
+      
       - name: Setup STK CLI
         run: |
           curl \
@@ -39,8 +33,14 @@ jobs:
             https://stk.stackspot.com/installer/linux/stk.deb
           sudo dpkg --install /tmp/stk.deb || echo installed
           rm --force /tmp/stk.deb
+
       - name: Show STK CLI  version
         run: $HOME/.stk/bin/stk --version
+      
       - name: Login StackSpot
         run: |
-          $HOME/.stk/bin/stk login -id ${{ secrets.stk-client-id }} -key ${{ secrets.stk-client-secret }} -r ${{ inputs.realm }}
+          $HOME/.stk/bin/stk login -id ${{ secrets.IDP_STK_CLIENT_ID }} -key ${{ secrets.IDP_STK_CLIENT_SECRET }} -r stackspot
+      
+      - name: Validate main action
+        run: |
+          $HOME/.stk/bin/stk validate action
