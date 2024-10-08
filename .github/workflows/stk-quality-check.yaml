@@ -39,7 +39,7 @@ jobs:
       
       - name: Login StackSpot
         run: |
-          $HOME/.stk/bin/stk login -id ${{ secrets.IDP_STK_CLIENT_ID }} -key ${{ secrets.IDP_STK_CLIENT_SECRET }} -r stackspot
+          $HOME/.stk/bin/stk login -id ${{ secrets.STK_CLIENT_ID }} -key ${{ secrets.STK_CLIENT_SECRET }} -r ${{ secrets.STK_REALM }}
       
       - name: Validate main action
         run: |
