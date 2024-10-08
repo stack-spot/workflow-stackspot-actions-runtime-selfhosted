@@ -1,0 +1,30 @@
+name: Quality Check
+on:
+  workflow_call:
+    secrets:
+      git-org-token:
+        required: true
+  pull_request:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  static_tests:
+    runs-on: ubuntu-latest
+    steps:
+
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install linters
+        run: |
+          pip install black
+  
+      - name: Perform lint
+        run: |
+          black . --check
