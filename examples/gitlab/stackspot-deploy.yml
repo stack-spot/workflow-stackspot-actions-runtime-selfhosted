@@ -1,9 +1,8 @@
-image: ubuntu:latest
+image: <your-image>
 
 # Define global variables
 variables:
-  ENVIRONMENT: "staging"
-  WORKFLOW_REPO_URL: "https://$GITHUB_PAT@github.com/stack-spot/workflow-stackspot-actions-runtime-selfhosted.git"
+  WORKFLOW_REPO_URL: "https://@github.com/stack-spot/workflow-stackspot-actions-runtime-selfhosted.git"
 
 stages:
   - run_stackspot
@@ -27,6 +26,15 @@ before_script:
 stk:
   stage: run_stackspot
   script:
+    # You can use this clone directly on the workflow as implemented here, or, 
+    # you checkout this repository locally and publish in your stackspot studio and share it to your app workspace
+    # in this way you will need to use the action qualifier name (<studio>/<stack>@<version>/<action>) when running the action in the end of this script
+    # Clone the workflow repository
+    - git clone $WORKFLOW_REPO_URL
+    - cd workflow-stackspot-actions-runtime-selfhosted
+    - run_action_path=$(pwd)
+    - cd ..
+
     # Export environment variables for StackSpot
     - export INPUTS_CLIENT_ID=$STK_CLIENT_ID
     - export INPUTS_CLIENT_KEY=$STK_CLIENT_SECRET
@@ -40,6 +48,8 @@ stk:
     - export INPUTS_AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
     - export INPUTS_AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN
     - export INPUTS_ENVIRONMENT=$ENVIRONMENT
+    - export INPUTS_REPOSITORY_NAME=$CI_PROJECT_NAME
+    - export INPUTS_VERSION_TAG=$CI_JOB_ID # Change this logic as you wish
 
     # Authenticate with StackSpot
     - $STK login --client-id $INPUTS_CLIENT_ID --client-key $INPUTS_CLIENT_KEY --realm $INPUTS_CLIENT_REALM
@@ -47,11 +57,5 @@ stk:
     # Use the specified workspace
     - $STK use workspace $STK_WORKSPACE
 
-    # Clone the workflow repository
-    - git clone $WORKFLOW_REPO_URL
-    - cd workflow-stackspot-actions-runtime-selfhosted
-    - run_action_path=$(pwd)
-    - cd ..
-
     # Run the StackSpot action
-    - $STK run action $run_action_path --workflow_type deploy --version_tag $CI_JOB_ID --repository_name $CI_PROJECT_NAME --non-interactive
+    - $STK run action $run_action_path --workflow_type deploy --non-interactive

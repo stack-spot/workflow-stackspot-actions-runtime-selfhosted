@@ -63,7 +63,7 @@ def run_tasks(file_tasks: str, run_action: RunAction):
 def run(metadata):
     workflows = dict(
         deploy=deploy_workflow,
-        cancel_deploy=cancel_deploy_run,
+        cancel=cancel_deploy_run,
         rollback_deploy=rollback_deploy_run,
     )
     run_action = RunAction(metadata)
