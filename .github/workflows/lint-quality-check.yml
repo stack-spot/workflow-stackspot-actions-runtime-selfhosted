@@ -1,9 +1,5 @@
 name: Quality Check
 on:
-  workflow_call:
-    secrets:
-      git-org-token:
-        required: true
   pull_request:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
