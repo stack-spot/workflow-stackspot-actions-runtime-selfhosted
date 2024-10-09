@@ -13,7 +13,10 @@ spec:
   inputs:
     - label: Workflow type
       name: workflow_type
-      type: text
+      type: select
+      items:
+        - deploy
+        - cancel
       required: true
   python:
     workdir: .

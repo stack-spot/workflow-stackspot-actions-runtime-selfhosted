@@ -2,7 +2,9 @@ import os
 from oscli.core.http import post_with_authorization
 
 
-STK_RUNTIME_MANAGER_DOMAIN = os.getenv("STK_RUNTIME_MANAGER_DOMAIN", "https://runtime-manager.v1.stackspot.com")
+STK_RUNTIME_MANAGER_DOMAIN = os.getenv(
+    "STK_RUNTIME_MANAGER_DOMAIN", "https://runtime-manager.v1.stackspot.com"
+)
 
 
 def run(metadata):
@@ -40,17 +42,17 @@ def run(metadata):
       print the error details and exit the program.
 
     """
-    
+
     # Extract the RUN_ID from the metadata inputs
-    RUN_ID = metadata.inputs['run_id']
+    RUN_ID = metadata.inputs["run_id"]
     print(f"> Requesting Run {RUN_ID} to be cancelled")
-    
+
     # Send a POST request to cancel the run
     cancel_request = post_with_authorization(
-        url=f"{STK_RUNTIME_MANAGER_DOMAIN}/v1/run/cancel/{RUN_ID}?force=true", 
-        headers={'Content-Type': 'application/json'},
+        url=f"{STK_RUNTIME_MANAGER_DOMAIN}/v1/run/cancel/{RUN_ID}?force=true",
+        headers={"Content-Type": "application/json"},
         body=None,
-        timeout=20
+        timeout=20,
     )
 
     # Handle the response based on the status code

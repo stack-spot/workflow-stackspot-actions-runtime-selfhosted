@@ -1,0 +1,88 @@
+name: STK actions quality-check
+
+on:
+  pull_request:
+
+jobs:
+  validate-actions:
+    name: StackSpot Runtime (v2)
+    runs-on: ubuntu-latest
+    env:
+      LANG: C.UTF-8
+      LANGUAGE: C.UTF-8
+      LC_ALL: C.UTF-8
+      PYTHONIOENCODING: utf-8
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - run: sudo apt update && sudo apt install -y curl unzip git jq
+        name: install dependencies
+      
+      - name: Setup STK CLI
+        run: |
+          curl \
+            --fail \
+            --http2-prior-knowledge \
+            --location \
+            --output /tmp/stk.deb \
+            --silent \
+            --show-error \
+            --tlsv1.3 \
+            https://stk.stackspot.com/installer/linux/stk.deb
+          sudo dpkg --install /tmp/stk.deb || echo installed
+          rm --force /tmp/stk.deb
+
+      - name: Show STK CLI  version
+        run: $HOME/.stk/bin/stk --version
+      
+      - name: Login StackSpot
+        run: |
+          $HOME/.stk/bin/stk login -id ${{ secrets.STK_CLIENT_ID }} -key ${{ secrets.STK_CLIENT_SECRET }} -r ${{ secrets.STK_REALM }}
+      
+      - name: Validate main action
+        run: |
+          $HOME/.stk/bin/stk validate action
+
+      - name: Validate runtime-cancel-run-action action
+        run: |
+          cd runtime-cancel-run-action
+          $HOME/.stk/bin/stk validate action
+      
+      - name: Validate runtime-create-manifest-action action
+        run: |
+          cd runtime-create-manifest-action
+          $HOME/.stk/bin/stk validate action
+
+      - name: Validate runtime-deploy-action action
+        run: |
+          cd runtime-deploy-action
+          $HOME/.stk/bin/stk validate action
+
+      - name: Validate runtime-destroy-action action
+        run: |
+          cd runtime-destroy-action
+          $HOME/.stk/bin/stk validate action
+
+      - name: Validate runtime-iac-action action
+        run: |
+          cd runtime-iac-action
+          $HOME/.stk/bin/stk validate action
+
+      - name: Validate runtime-manager-action action
+        run: |
+          cd runtime-manager-action
+          $HOME/.stk/bin/stk validate action
+
+      - name: Validate runtime-rollback-action action
+        run: |
+          cd runtime-rollback-action
+          $HOME/.stk/bin/stk validate action
+
+      - name: Validate runtime-matrix action
+        run: |
+          cd runtime-matrix
+          $HOME/.stk/bin/stk validate action
+
+      

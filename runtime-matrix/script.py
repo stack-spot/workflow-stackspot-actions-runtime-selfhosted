@@ -2,6 +2,7 @@ import os
 import sys
 import subprocess
 import logging
+import json
 from typing import List
 
 # Configure logging
@@ -14,6 +15,7 @@ STK_IAM_DOMAIN = os.getenv("STK_IAM_DOMAIN", "https://idm.stackspot.com")
 STK_RUNTIME_MANAGER_DOMAIN = os.getenv(
     "STK_RUNTIME_MANAGER_DOMAIN", "https://runtime-manager.v1.stackspot.com"
 )
+CONTAINER_IAC_URL = os.getenv("CONTAINER_IAC_URL", "stackspot/runtime-job-iac:latest")
 CONTAINER_DEPLOY_URL = os.getenv(
     "CONTAINER_DEPLOY_URL", "stackspot/runtime-job-deploy:latest"
 )
@@ -69,7 +71,50 @@ def run_command(command: List[str]) -> subprocess.Popen:
         sys.exit(1)
 
 
-def build_flags(inputs: dict) -> list:
+def build_iac_flags(inputs: dict) -> list:
+    docker_flags: dict = dict(
+        FEATURES_LEVEL_LOG=inputs.get("features_level_log") or "info",
+        REPOSITORY_NAME=inputs["repository_name"],
+        AUTHENTICATE_CLIENT_ID=inputs["client_id"],
+        AUTHENTICATE_CLIENT_SECRET=inputs["client_key"],
+        AUTHENTICATE_CLIENT_REALMS=inputs["client_realm"],
+        AWS_ACCESS_KEY_ID=inputs["aws_access_key_id"],
+        AWS_SECRET_ACCESS_KEY=inputs["aws_secret_access_key"],
+        AWS_SESSION_TOKEN=inputs["aws_session_token"],
+        AWS_REGION=inputs["aws_region"],
+        AUTHENTICATE_URL=STK_IAM_DOMAIN,
+        FEATURES_API_MANAGER=STK_RUNTIME_MANAGER_DOMAIN,
+    )
+    flags = []
+    for k, v in docker_flags.items():
+        flags += ["-e", f"{k}={v}"]
+
+    return flags
+
+
+def run_iac(inputs: dict):
+    run_task_id: str = inputs["run_task_id"]
+    base_path_output: str = inputs.get("base_path_output") or "."
+    path_to_mount: str = inputs.get("path_to_mount") or "."
+    path_to_mount = f"{path_to_mount}:/app-volume"
+
+    flags = build_iac_flags(inputs)
+    cmd = (
+        ["docker", "run", "--rm", "-v", path_to_mount]
+        + flags
+        + [
+            "--entrypoint=/app/stackspot-runtime-job-iac",
+            CONTAINER_IAC_URL,
+            "start",
+            f"--run-task-id={run_task_id}",
+            f"--base-path-output={base_path_output}",
+        ]
+    )
+
+    run_command(cmd)
+
+
+def build_deploy_flags(inputs: dict) -> list:
 
     docker_flags: dict = dict(
         FEATURES_LEVEL_LOG=inputs.get("features_level_log") or "info",
@@ -98,14 +143,13 @@ def build_flags(inputs: dict) -> list:
     return flags
 
 
-def run(metadata):
-    inputs: dict = metadata.inputs
+def run_deploy(inputs: dict):
     run_task_id: str = inputs["run_task_id"]
     output_file: str = inputs.get("output_file") or "deploy-output.json"
     path_to_mount: str = inputs.get("path_to_mount") or "."
     path_to_mount = f"{path_to_mount}:/app-volume"
 
-    flags = build_flags(inputs)
+    flags = build_deploy_flags(inputs)
     cmd = (
         ["docker", "run", "--rm", "-v", path_to_mount]
         + flags
@@ -119,3 +163,13 @@ def run(metadata):
     )
 
     run_command(cmd)
+
+
+def run(metadata):
+    with open("manager-output.log", "r") as file:
+        data = json.loads(file.read().replace("'", '"'))
+
+    task_runners = dict(IAC_SELF_HOSTED=run_iac, DEPLOY_SELF_HOSTED=run_deploy)
+    for t in data["tasks"]:
+        runner = task_runners.get(t["taskType"])
+        runner and runner(run_task_id=t["runTaskId"], **metadata.inputs)
