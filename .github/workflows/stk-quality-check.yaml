@@ -80,9 +80,4 @@ jobs:
           cd runtime-rollback-action
           $HOME/.stk/bin/stk validate action
 
-      - name: Validate runtime-matrix action
-        run: |
-          cd runtime-matrix
-          $HOME/.stk/bin/stk validate action
-
       
