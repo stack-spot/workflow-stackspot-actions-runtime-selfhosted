@@ -1,3 +1,4 @@
+import os
 import json
 from pathlib import Path
 from ruamel.yaml import YAML
@@ -5,6 +6,15 @@ from io import StringIO
 from typing import Dict
 from oscli.core.http import post_with_authorization
 from oscli.core.http import get_with_authorization
+from sys import exit
+
+# Constants
+STK_RUNTIME_MANAGER_DOMAIN = os.getenv("STK_RUNTIME_MANAGER_DOMAIN", "https://runtime-manager.v1.stackspot.com")
+STK_WORKSPACE_DOMAIN = os.getenv("STK_WORKSPACE_DOMAIN", "https://runtime-manager.v1.stackspot.com")
+STK_FILE = '.stk/stk.yaml'
+OUTPUT_FILE = 'rollback-output.log'
+HEADERS = {'Content-Type': 'application/json'}
+TIMEOUT = 20
 
 
 def yaml() -> YAML:
@@ -15,130 +25,123 @@ def yaml() -> YAML:
     yml.preserve_quotes = True
     return yml
 
-
 def safe_load(content: str) -> dict:
     yml = yaml()
     return yml.load(StringIO(content))
 
 
-def save_output(name: str, value: str):
-    with open("rollback-output.log", "a") as output_file:
-        print(f"{name}={value}", file=output_file)
-
-
-def get_env_id(slug):
-
-    env_request = get_with_authorization(
-        url=f"https://workspace-workspace-api.stg.stackspot.com/v1/environments",
-        headers={"Content-Type": "application/json"},
-        timeout=20,
-    )
-
-    if env_request.status_code != 200:
-        print("Unable to fetch Environments data")
-        print("- Status:", env_request.status_code)
-        print("- Error:", env_request.reason)
-        print("- Response:", env_request.text)
+def get_stk_yaml() -> dict:
+    try:
+        with open(Path(STK_FILE), 'r') as file:
+            stk_yaml = file.read()
+        stk_yaml = safe_load(stk_yaml)
+        return stk_yaml
+    except FileNotFoundError:
+        print(f"> Error: {STK_FILE} not found.")
+        exit(1)
+    except Exception as e:
+        print(f"> Error reading {STK_FILE}: {e}")
         exit(1)
 
-    env_list = env_request.json()
 
-    for env in env_list:
-        if env["name"] == slug:
-            return env["id"]
+def save_output(value: dict):
 
-    print(f"Unable to find environment: {slug}")
-    exit(1)
+    with open(OUTPUT_FILE, 'w') as output_file:
+        json.dump(value, output_file, indent=4)
+    print(f"> Output saved to {OUTPUT_FILE}")
+    
 
+def build_request(action_inputs: dict, env_id: str, stk_yaml: dict) -> dict:
 
-def run(metadata):
-
-    TF_STATE_BUCKET_NAME = metadata.inputs.get("tf_state_bucket_name")
-    TF_STATE_REGION = metadata.inputs.get("tf_state_region")
-    IAC_BUCKET_NAME = metadata.inputs.get("iac_bucket_name")
-    IAC_REGION = metadata.inputs.get("iac_region")
-    VERBOSE = metadata.inputs.get("verbose")
-    VERSION_TAG = metadata.inputs.get("version_tag")
-    ENVIRONMENT = metadata.inputs.get("environment")
-
-    inputs_list = [
-        ENVIRONMENT,
-        VERSION_TAG,
-        TF_STATE_BUCKET_NAME,
-        TF_STATE_REGION,
-        IAC_BUCKET_NAME,
-        IAC_REGION,
-    ]
-
-    if None in inputs_list:
-        print("- Some mandatory input is empty. Please, check the input list.")
+    try:
+        # Extract the type of deployment (app or infra) from the stack YAML configuration
+        type = get_type(stk_yaml)
+        
+        # Define a parser to map the type to the appropriate key and value for the request payload
+        type_parser = {
+            "app": {"key": "appId", "value": stk_yaml["spec"].get("app-id")},
+            "infra": {"key": "infraId", "value": stk_yaml["spec"].get("infra-id")}
+        }   
+        
+        # Build the request payload using the provided inputs and the parsed type information
+        request_data = {
+            f"{type_parser[type]['key']}": type_parser[type]['value'],
+            "envId": env_id,
+            "tag": action_inputs["version_tag"],
+            "config": {
+                "tfstate": {
+                    "bucket": action_inputs["tf_state_bucket_name"],
+                    "region": action_inputs["tf_state_region"]
+                },
+                "iac": {
+                    "bucket": action_inputs["iac_bucket_name"],
+                    "region": action_inputs["iac_region"]
+                }
+            },
+            "pipelineUrl": "http://stackspot.com",
+        }
+        
+        print(f"> Runtime manager run self hosted rollback request data:\n{json.dumps(request_data, indent=4)}")
+        return request_data
+    except KeyError as e:
+        print(f"> Error: Missing required input {e}")
         exit(1)
 
-    with open(Path(".stk/stk.yaml"), "r") as file:
-        stk_yaml = file.read()
+def get_type(stk_yaml: dict) -> str:
+    return stk_yaml["spec"]["type"]
 
-    stk_dict = safe_load(stk_yaml)
+def runtime_manager_run_self_hosted_rollback(request_data: dict, stk_yaml: dict, version_tag: str):
 
-    if VERBOSE is not None:
-        print("- stk.yaml:", stk_dict)
+    type = get_type(stk_yaml)
+    url = f"{STK_RUNTIME_MANAGER_DOMAIN}/v1/run/self-hosted/rollback/{type}"
+    
+    print("> Calling runtime manager to rollback tasks...")
+    response = post_with_authorization(url=url, body=request_data, headers=HEADERS, timeout=TIMEOUT)
 
-    stk_yaml_type = stk_dict["spec"]["type"]
-    app_or_infra_id = (
-        stk_dict["spec"]["infra-id"]
-        if stk_yaml_type == "infra"
-        else stk_dict["spec"]["app-id"]
-    )
+    if response.ok:
+        if(response.status_code == 201):
+            response_data = response.json()
+            print(f"> Rollback successfully started:\n{json.dumps(response_data, indent=4)}")
+        else:
+            print(f"> Rollback successfully but no modifications detected for tag {version_tag}")
+            response_data = {}
 
-    print(f"{stk_yaml_type} project identified, with ID: {app_or_infra_id}")
+        save_output(response_data)
+            
+    else:
+        print(f"> Error: Failed to start self-hosted rollback run. Status: {response.status_code}")
+        print(f"> Response: {response.text}")
+        exit(1)
 
-    stk_id = (
-        {
-            "appId": app_or_infra_id,
-        }
-        if stk_yaml_type != "infra"
-        else {
-            "infraId": app_or_infra_id,
-        }
-    )
 
-    request_data = {
-        **stk_id,
-        "envId": get_env_id(ENVIRONMENT),
-        "tag": VERSION_TAG,
-        "config": {
-            "tfstate": {"bucket": TF_STATE_BUCKET_NAME, "region": TF_STATE_REGION},
-            "iac": {"bucket": IAC_BUCKET_NAME, "region": IAC_REGION},
-        },
-        "pipelineUrl": "http://stackspot.com",
-    }
+def get_environment_id(environment_slug):
+    
+    url = f"{STK_WORKSPACE_DOMAIN}/v1/environments"
 
-    if VERBOSE is not None:
-        print("- ROLLBACK RUN REQUEST DATA:", request_data)
-
-    print("Deploying Self-Hosted Rollback..")
-
-    rollback_request = post_with_authorization(
-        url=f"https://runtime-manager.v1.stackspot.com/v1/run/self-hosted/rollback/{stk_yaml_type}",
-        body=request_data,
-        headers={"Content-Type": "application/json"},
-        timeout=20,
-    )
-
-    if rollback_request.status_code == 201:
-        d2 = rollback_request.json()
-        runId = d2["runId"]
-        runType = d2["runType"]
-        tasks = d2["tasks"]
-
-        save_output("tasks", tasks)
-        save_output("run_id", runId)
-
-        print(f"- Rollback RUN {runType} successfully started with ID: {runId}")
-        print(f"- Rollback RUN TASKS LIST: {tasks}")
+    print("> Calling workspace to load environments...")
+    response = get_with_authorization(url=url,headers=HEADERS,timeout=TIMEOUT)
+    
+    if response.ok: 
+        env_list = response.json()
+        for env in env_list:
+            if env["name"] == environment_slug:
+                return env["id"]
 
     else:
-        print("- Error starting self hosted rollback run")
-        print("- Status:", rollback_request.status_code)
-        print("- Error:", rollback_request.reason)
-        print("- Response:", rollback_request.text)
+        print(f"> Error: Failed to load environments. Status: {response.status_code}")
+        print(f"> Response: {response.text}")
         exit(1)
+    
+
+def run(metadata):
+    # Load the manifest file
+    stk_yaml = get_stk_yaml()
+
+    # Load environment Id
+    env_id = get_environment_id(metadata.inputs.get("environment"))
+    
+    # Build the request data
+    request = build_request(metadata.inputs, env_id, stk_yaml)
+    
+    # Execute the rollback request
+    runtime_manager_run_self_hosted_rollback(request, stk_yaml, metadata.inputs['version_tag'])

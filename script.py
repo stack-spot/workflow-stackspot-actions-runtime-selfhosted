@@ -33,24 +33,32 @@ def deploy_workflow(run_action: RunAction):
     run_action("runtime-create-manifest-action")
     run_action("runtime-manager-action")
 
-    with open("manager-output.log", "r") as file:
-        data = json.loads(file.read().replace("'", '"'))
-
-    task_runners = dict(
-        IAC_SELF_HOSTED=lambda **i: run_action("runtime-iac-action", **i),
-        DEPLOY_SELF_HOSTED=lambda **i: run_action("runtime-deploy-action", **i),
-    )
-    for t in data["tasks"]:
-        runner = task_runners.get(t["taskType"])
-        runner and runner(run_task_id=t["runTaskId"])
-
+    run_tasks("manager-output.log", run_action)
 
 def cancel_deploy_run(run_action: RunAction):
     run_action("runtime-cancel-run-action")
 
+def rollback_deploy_run(run_action: RunAction):
+    run_action("runtime-rollback-action")
+    run_tasks("rollback-output.log", run_action)
+   
+
+def run_tasks(file_tasks: str, run_action: RunAction):
+    with open(file_tasks, 'r') as file:
+        data = json.loads(file.read().replace("\'", "\""))
+    
+    task_runners = dict(
+        IAC_SELF_HOSTED=lambda **i: run_action("runtime-iac-action", **i),
+        DEPLOY_SELF_HOSTED=lambda **i: run_action("runtime-deploy-action", **i),
+        DESTROY_SELF_HOSTED=lambda **i: run_action("runtime-destroy-action", **i),
+    )
+    
+    for t in data.get('tasks') or []:
+        runner = task_runners.get(t["taskType"])
+        runner and runner(run_task_id=t["runTaskId"])
 
 def run(metadata):
-    workflows = dict(deploy=deploy_workflow, cancel=cancel_deploy_run)
+    workflows = dict(deploy=deploy_workflow, cancel_deploy=cancel_deploy_run, rollback_deploy=rollback_deploy_run)
     run_action = RunAction(metadata)
     workflow_runner = workflows.get(metadata.inputs["workflow_type"])
     workflow_runner and workflow_runner(run_action=run_action)
