@@ -140,7 +140,7 @@ def runtime_manager_run_self_hosted_deploy(request_data: dict, manifest: dict):
         # Parse the response and extract relevant data
         response_data = response.json()
         print(f"> Deploy successfully started:\n{json.dumps(response_data, indent=4)}")
-
+        print(f"RUN DEPLOY_SELF_HOSTED successfully started with ID: {response_data.get("runId")}")
         # Save the response to the output log
         save_output(response_data)
     else:
