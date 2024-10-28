@@ -71,7 +71,7 @@ def run_command(command: List[str]) -> subprocess.Popen:
 
 def build_flags(inputs: dict) -> list:
 
-    TF_PARALLELISM=f"-parallelism={inputs.get('tf_parallelism') or '10'}"
+    TF_PARALLELISM = f"-parallelism={inputs.get('tf_parallelism') or '10'}"
 
     docker_flags: dict = dict(
         FEATURES_LEVEL_LOG=inputs.get("features_level_log") or "info",
@@ -94,8 +94,7 @@ def build_flags(inputs: dict) -> list:
         FEATURES_BASEPATH_TERRAFORM=FEATURES_BASEPATH_TERRAFORM,
         TF_CLI_ARGS_apply=TF_PARALLELISM,
         TF_CLI_ARGS_plan=TF_PARALLELISM,
-        TF_CLI_ARGS_destroy=TF_PARALLELISM
-        
+        TF_CLI_ARGS_destroy=TF_PARALLELISM,
     )
     flags = []
     for k, v in docker_flags.items():

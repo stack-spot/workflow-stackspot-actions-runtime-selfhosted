@@ -55,14 +55,14 @@ def run_tasks(file_tasks: str, run_action: RunAction):
         DESTROY_SELF_HOSTED=lambda **i: run_action("runtime-destroy-action", **i),
         UNIFIED_IAC=lambda **i: run_action("runtime-unified-action", **i),
         UNIFIED_DEPLOY=lambda **i: run_action("runtime-unified-action", **i),
-        UNIFIED_DESTROY=lambda **i: run_action("runtime-unified-action", **i)
+        UNIFIED_DESTROY=lambda **i: run_action("runtime-unified-action", **i),
     )
 
     for t in data.get("tasks") or []:
         task_type = t["taskType"]
         runner = task_runners.get(task_type)
         if "UNIFIED" in task_type:
-            runner and runner(run_id=data.get("runId"))        
+            runner and runner(run_id=data.get("runId"))
         else:
             runner and runner(run_task_id=t["runTaskId"])
 
