@@ -1,0 +1,99 @@
+schema-version: v3
+kind: action
+metadata:
+  name: runtime-unified-action
+  display-name: runtime-unified-action
+  description: Descreva sua action explicando o propósito.
+  version: 0.0.1
+spec:
+  type: python
+  docs:
+    pt-br: docs/pt-br/docs.md
+    en-us: docs/en-us/docs.md
+  repository: https://github.com/stack-spot/workflow-stackspot-actions-runtime-selfhosted.git
+  inputs:
+    - label: "CLIENT ID"
+      name: client_id
+      type: text
+      required: true
+    
+    - label: "CLIENT KEY"
+      name: client_key
+      type: text
+      required: true
+    
+    - label: "CLIENT REALM"
+      name: client_realm
+      type: text
+      required: true
+    
+    - label: "Git Repository Name"
+      name: repository_name
+      type: text
+      required: true
+    
+    - label: "AWS ACCESS KEY ID from console"
+      name: aws_access_key_id
+      type: text
+      required: true
+    
+    - label: "AWS SECRET ACCESS KEY from console"
+      name: aws_secret_access_key
+      type: text
+      required: true
+    
+    - label: "AWS SESSION TOKEN from console"
+      name: aws_session_token
+      type: text
+      required: true
+    
+    - label: "AWS REGION"
+      name: aws_region
+      type: text
+      required: true
+
+    - label: "Terraform parallelism order"
+      name: tf_parallelism
+      type: text
+      default: "10"
+      required: false
+
+    - label: "Terraform Modules"
+      name: features_terraform_modules
+      type: text
+      required: false
+
+    - label: "Path to mount inside the docker"
+      name: path_to_mount
+      type: text
+      default: "."
+      required: false
+  
+    - label: "If Runtimes will allow execution of the local-exec command within terraform"
+      name: localexec_enabled
+      type: bool
+      required: false
+    
+    - label: "Level tf log provider - info, debug, warn or trace"
+      name: tf_log_provider 
+      type: text
+      required: false
+    
+    - label: "Features Log Level"
+      name: features_level_log
+      type: text
+      required: false
+
+    - label: "Base Path Output"
+      name: base_path_output
+      type: text
+      required: false
+
+    - label: "Run ID that contains its tasks"
+      name: run_id
+      type: text
+      required: true
+  
+  python:
+    workdir: .
+    script: script.py
