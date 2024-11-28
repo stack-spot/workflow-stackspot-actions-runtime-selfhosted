@@ -53,6 +53,7 @@ def run_tasks(file_tasks: str, run_action: RunAction):
         IAC_SELF_HOSTED=lambda **i: run_action("runtime-iac-action", **i),
         DEPLOY_SELF_HOSTED=lambda **i: run_action("runtime-deploy-action", **i),
         DESTROY_SELF_HOSTED=lambda **i: run_action("runtime-destroy-action", **i),
+        PLAN=lambda **i: run_action("runtime-unified-action", **i),
         UNIFIED_IAC=lambda **i: run_action("runtime-unified-action", **i),
         UNIFIED_DEPLOY=lambda **i: run_action("runtime-unified-action", **i),
         UNIFIED_DESTROY=lambda **i: run_action("runtime-unified-action", **i),
@@ -62,6 +63,8 @@ def run_tasks(file_tasks: str, run_action: RunAction):
         task_type = t["taskType"]
         runner = task_runners.get(task_type)
         if "UNIFIED" in task_type:
+            runner and runner(run_id=data.get("runId"))
+        elif "PLAN" == task_type:
             runner and runner(run_id=data.get("runId"))
         else:
             runner and runner(run_task_id=t["runTaskId"])
