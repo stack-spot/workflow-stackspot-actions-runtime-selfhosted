@@ -44,6 +44,7 @@ def rollback_deploy_run(run_action: RunAction):
     run_action("runtime-rollback-action")
     run_tasks("rollback-output.log", run_action)
 
+
 def run_tasks(file_tasks: str, run_action: RunAction):
     with open(file_tasks, "r") as file:
         data = json.loads(file.read().replace("'", '"'))
@@ -66,7 +67,7 @@ def run_tasks(file_tasks: str, run_action: RunAction):
         elif "PLAN" == task_type:
             runner and runner(run_id=data.get("runId"))
         else:
-            runner and runner(run_task_id=t["runTaskId"]) 
+            runner and runner(run_task_id=t["runTaskId"])
 
 
 def run(metadata):

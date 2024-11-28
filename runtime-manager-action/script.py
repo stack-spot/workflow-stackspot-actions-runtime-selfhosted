@@ -136,12 +136,13 @@ def runtime_manager_run_self_hosted_deploy(request_data: dict, manifest: dict):
         url=url, body=request_data, headers=HEADERS, timeout=TIMEOUT
     )
 
-
     if response.status_code == 201:
         try:
             # Parse the response and extract relevant data
             response_data = response.json()
-            print(f"> Deploy successfully started:\n{json.dumps(response_data, indent=4)}")
+            print(
+                f"> Deploy successfully started:\n{json.dumps(response_data, indent=4)}"
+            )
 
             # Save the response to the output log
             save_output(response_data)
